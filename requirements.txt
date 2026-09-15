@@ -1,3 +1,3 @@
 numpy
-matlplotlib
-python-opencv
+matplotlib
+opencv-python
