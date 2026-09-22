@@ -9,6 +9,8 @@ def filter2d(image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     ksize = kernel.shape[0]
     pad = ksize //2
 
+    kernel = kernel.astype(np.float32)
+
     # Replicate border pixels
     padded = np.pad(
         image,
@@ -78,6 +80,32 @@ print("Gray Data type:", gray.dtype)
 
 blurred_func = filter2d(gray, np.ones((blur_k, blur_k))/blur_k**2)
 
+# kernel examples:
+avg_blur = np.array([
+    [1/9, 1/9, 1/9],
+    [1/9, 1/9, 1/9],
+    [1/9, 1/9, 1/9]
+])
+
+eye_kern = np.array([
+    [0, 0, 0],
+    [0, 1, 0],
+    [0, 0, 0]
+])
+
+cross_blur = np.array([
+    [0,   1/5, 0],
+    [1/5, 1/5, 1/5],
+    [0,   1/5, 0]
+])
+
+# 5*(eye - cross)
+sharp_kern = np.array([
+    [ 0, -1,  0],
+    [-1,  5, -1],
+    [ 0, -1,  0]
+])
+
 ## Image outputs
 
 # plt.figure("orig")
@@ -91,6 +119,10 @@ plt.imshow(blurred, cmap="gray", vmin=0, vmax=255)
 
 plt.figure("blurred_func")
 plt.imshow(blurred_func, cmap="gray", vmin=0, vmax=255)
+
+sharpened_img = filter2d(blurred, sharp_kern)
+plt.figure("sharpened")
+plt.imshow(sharpened_img, cmap="gray", vmin=0, vmax=255)
 
 # plt.figure("gauss blurred")
 # plt.imshow(gauss_blur, cmap="gray", vmin=0, vmax=255)
