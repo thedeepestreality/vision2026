@@ -5,7 +5,9 @@ import pybullet as p
 
 
 PERIOD = 12.0
-WIDTH, HEIGHT = 320, 240
+FULL_WIDTH, FULL_HEIGHT = 640, 480
+CROP = 100
+WIDTH, HEIGHT = FULL_WIDTH - 2*CROP, FULL_HEIGHT - 2*CROP
 LENGTHS = (0.45, 0.35, 0.18)
 
 
@@ -23,7 +25,12 @@ class TriangleScene:
             raise RuntimeError("Cannot connect to PyBullet")
         p.setGravity(0, 0, 0, physicsClientId=self.client)
         p.setTimeStep(1/240, physicsClientId=self.client)
-        self.projection = p.computeProjectionMatrixFOV(75, WIDTH/HEIGHT, 0.02, 5)
+        self.projection = list(p.computeProjectionMatrixFOV(
+            75, FULL_WIDTH/FULL_HEIGHT, 0.02, 5))
+        # Render the central crop directly, preserving the original pixel focal
+        # lengths rather than resizing the full field of view into fewer pixels.
+        self.projection[0] *= FULL_WIDTH/WIDTH
+        self.projection[5] *= FULL_HEIGHT/HEIGHT
         self.robot = self._robot()
         self.set_time(0)
         # Center the fixed board below the nominal flange position.

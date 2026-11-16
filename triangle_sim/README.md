@@ -1,5 +1,7 @@
 # Planar robot with a flange camera
 
+For image-based feedback control of this same arm, see [ibvs/README.md](ibvs/README.md).
+
 From the repository root:
 
 ```powershell
@@ -22,8 +24,9 @@ window is required. No external robot models or downloads are needed.
   Its optical axis is local -Z and image up is local +Y. Both vectors are
   transformed using the actual camera link orientation each frame. The camera
   does not independently aim at or track the marker.
-- A fixed black isosceles triangle sits on a white horizontal board. A 75-degree
-  vertical field of view and small joint excursions keep it within the image.
+- A fixed black isosceles triangle sits on a white horizontal board. The camera
+  uses the central 440x280 region of the original 640x480, 75-degree vertical
+  field of view, removing 100 pixels from each edge without changing pixel scale.
   Keeping the camera parallel to the board preserves the isosceles geometry;
   arbitrary perspective tilt would require rectification or a different detector.
 - `scene.py:joint_angles` defines smooth 12-second periodic joint trajectories.
@@ -35,7 +38,7 @@ window is required. No external robot models or downloads are needed.
 from `src/find_triangle.py`. Detection uses only rendered RGB pixels: Otsu
 thresholding, manual connected components, manual boundary tracing and RDP.
 World coordinates and renderer segmentation are not supplied to the detector.
-The detector runs on 320x240 images; the display is enlarged for readability.
+The detector runs on cropped 440x280 images; the display is enlarged for readability.
 `--fps 15` sets a display-rate ceiling; actual speed depends on the Python
 detector and machine.
 
@@ -52,5 +55,9 @@ It saves `output/camera.png`, `output/scene.png`, and `output/cycle.png` inside
 this folder. Ground-truth projection is used only for this check, not detection.
 The check exits with an error and saves `failure.png` if visibility or detection
 fails. `--output-dir` selects another destination.
+
+With the 100-pixel crop, the original prescribed trajectory leaves the narrower
+field of view (for example at t=3 s), so this full-cycle visibility check fails.
+The IBVS starting pose and convergence run remain visible within the crop.
 
 Camera API reference: [official PyBullet camera example](https://github.com/bulletphysics/bullet3/blob/master/examples/pybullet/examples/getCameraImageTest.py).
